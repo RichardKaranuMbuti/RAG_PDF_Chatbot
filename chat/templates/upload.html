@@ -1,0 +1,127 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h1>Upload Documents</h1>
+    <form method="post" action="{% url 'upload_pdf' %}" enctype="multipart/form-data" id="upload-form" data-upload-url="{% url 'upload_pdf' %}">
+        {% csrf_token %}
+        <div class="form-group">
+            <label for="pdf_file">Select PDF File:</label>
+            <input type="file" name="pdf_files[]" accept=".pdf" class="form-control-file" id="pdf_files[]" required>
+        </div>
+        <div class="form-group">
+            <label for="description">Description (optional):</label>
+            <textarea name="description" class="form-control" id="description"></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary">Upload</button>
+    </form>
+
+    <!-- Display success message -->
+    <div id="success-message" class="alert alert-success mt-3" style="display: none;">
+        Document uploaded successfully.
+    </div>
+
+    <!-- Display error message -->
+    <div id="error-message" class="alert alert-danger mt-3" style="display: none;">
+        An error occurred when preparing your documents.
+    </div>
+
+    <!-- Display loading spinner -->
+    <div id="loading-spinner" class="spinner-border text-primary" style="display: none;"></div>
+
+    <!-- Display "Process Documents" button -->
+    <div id="process-button-container" style="display: none;">
+        <button id="process-button" class="btn btn-primary mt-3">Process Documents</button>
+    </div>
+
+    <!-- Display "Chat" button -->
+    <div id="chat-button-container" style="display: none;">
+        <button id="chat-button" class="btn btn-primary mt-3">Chat</button>
+    </div>
+    
+    <script>
+        console.log('JavaScript code executing');
+        document.addEventListener('DOMContentLoaded', function () {
+            const form = document.getElementById('upload-form');
+            const successMessage = document.getElementById('success-message');
+            const errorMessage = document.getElementById('error-message');
+            const processButtonContainer = document.getElementById('process-button-container');
+            const processButton = document.getElementById('process-button');
+            
+            const uploadUrl = form.getAttribute('data-upload-url'); // Get the upload URL
+            
+            form.addEventListener('submit', function (event) {
+                event.preventDefault(); // Prevent the default form submission
+    
+                const formData = new FormData(form);
+    
+                // Send a POST request using AJAX
+                fetch(uploadUrl, { // Use the upload URL from the data attribute
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 200) {
+                        // Hide the form
+                        form.style.display = 'none';
+    
+                        // Show the success message
+                        successMessage.style.display = 'block';
+    
+                        // Show the "Process Documents" button
+                        processButtonContainer.style.display = 'block';
+                        
+                        // Add an event listener for the "Process Documents" button
+                        processButton.addEventListener('click', function () {
+                            console.log('Process Documents button clicked');
+                            // Show the loading spinner
+                            const loadingSpinner = document.getElementById('loading-spinner');
+                            loadingSpinner.style.display = 'inline-block';
+    
+                            // Make a POST request to the named URL
+                            fetch("{% url 'create_embeddings' %}", { // Use the named URL
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                },
+                            })
+                            .then(response => response.json())
+                            .then(data => {
+                                // Hide the loading spinner
+                                loadingSpinner.style.display = 'none';
+    
+                                if (data.success) {
+                                    // Show the "Chat" button
+                                    const chatButtonContainer = document.getElementById('chat-button-container');
+                                    chatButtonContainer.style.display = 'block';
+    
+                                    // Handle success (you can add more logic here)
+                                } else {
+                                    // Show a flash message for the error
+                                    errorMessage.style.display = 'block';
+                                }
+                            })
+                            .catch(error => {
+                                // Hide the loading spinner
+                                loadingSpinner.style.display = 'none';
+                                console.error('Error:', error);
+                                // Handle the error if necessary
+                            });
+                        });
+    
+                        // Set a timer to hide the success message after 5 seconds
+                        setTimeout(function () {
+                            successMessage.style.display = 'none';
+                        }, 5000);
+                    } else {
+                        // Handle other status codes or errors if needed
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    // Handle the error if necessary
+                });
+            });
+        });
+    </script>
+{% endblock %}
