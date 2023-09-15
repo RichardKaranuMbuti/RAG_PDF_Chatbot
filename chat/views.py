@@ -68,8 +68,8 @@ def pinecone_setup():
     except Exception as e:
         return JsonResponse({"error": f"Failed to initialize Pinecone: {str(e)}"}, status=500)
 
+pinecone_setup()
 
-#pinecone_setup()
 
 # Define index name
 index_name = 'unitech'
@@ -81,7 +81,7 @@ def pinecone_index_setup():
         pinecone.delete_index(index_name)
         
         # Initialize Pinecone for a new connection
-        pinecone_setup()
+        #pinecone_setup()
         
         
         pinecone.create_index(
@@ -173,8 +173,6 @@ def document_search_view(request):
         
 
 
-
-
 from .models import UploadedPDF
 from .serializers import UploadedPDFSerializer
 from rest_framework.parsers import MultiPartParser, FormParser
@@ -205,7 +203,7 @@ def upload_pdf_view(request):
             # Serialize the PDFs using the UploadedPDFSerializer
             serializer = UploadedPDFSerializer(pdf_docs, many=True)
 
-            return JsonResponse({"message": "PDFs uploaded successfully", "pdf_docs": serializer.data})
+            return JsonResponse({"message": "PDFs uploaded successfully", "status": 200})
         else:
             return JsonResponse({"error": "No PDF files were uploaded"}, status=400)
     else:
@@ -235,3 +233,8 @@ def get_uploaded_pdf_paths():
     return pdf_docs
 
 
+def upload_docs_view(request):
+    return render(request, 'upload.html')
+
+def send_message_get_response(request):
+    return render(request, 'chat.html')

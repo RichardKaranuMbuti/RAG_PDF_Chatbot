@@ -22,7 +22,7 @@
 
     <!-- Display error message -->
     <div id="error-message" class="alert alert-danger mt-3" style="display: none;">
-        An error occurred when preparing your documents.
+        An error occurred when preparing your documents .
     </div>
 
     <!-- Display loading spinner -->
@@ -50,6 +50,7 @@
             const uploadUrl = form.getAttribute('data-upload-url'); // Get the upload URL
             
             form.addEventListener('submit', function (event) {
+                console.log('Form submitted');
                 event.preventDefault(); // Prevent the default form submission
     
                 const formData = new FormData(form);
@@ -99,6 +100,7 @@
                                 } else {
                                     // Show a flash message for the error
                                     errorMessage.style.display = 'block';
+                                    errorMessage.textContent = 'An error occurred when preparing your documents: ' + data.error_message;
                                 }
                             })
                             .catch(error => {
