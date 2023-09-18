@@ -66,16 +66,50 @@
         background-color: #FFD2D2;
     }
 </style>
-
 <script>
     const chatMessages = document.getElementById('chat-messages');
     const chatForm = document.getElementById('chat-form');
     const userInput = document.getElementById('user-input');
     const sendButton = document.getElementById('send-button');
-    const spinner = document.createElement('div'); // Create a spinner element
 
-    spinner.classList.add('spinner-border', 'text-primary', 'spinner'); // Add Bootstrap classes
-    sendButton.appendChild(spinner); // Append the spinner to the send button
+    // Function to scroll to the bottom of the chat container
+    function scrollToBottom() {
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+    // Function to display "typing..." message
+    function showTypingMessage() {
+        chatMessages.innerHTML += `<div class="message bot-message">Typing...</div>`;
+        scrollToBottom(); // Scroll to the bottom when "typing..." is displayed
+    }
+
+    // Function to hide the "typing..." message
+    function hideTypingMessage() {
+        const typingMessage = chatMessages.querySelector('.bot-message:last-child');
+        if (typingMessage && typingMessage.textContent === 'Typing...') {
+            typingMessage.style.display = 'none';
+        }
+    }
+
+    // Function to disable the input field and send button
+    function disableInputAndButton() {
+        userInput.disabled = true;
+        sendButton.disabled = true;
+    }
+
+    // Function to enable the input field and send button
+    function enableInputAndButton() {
+        userInput.disabled = false;
+        sendButton.disabled = false;
+    }
+
+    // Add event listener to the input field to trigger send button on Enter key press
+    userInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            e.preventDefault(); // Prevent the default form submission
+            sendButton.click(); // Trigger the send button click
+        }
+    });
 
     chatForm.addEventListener('submit', (e) => {
         e.preventDefault(); // Prevent the default form submission
@@ -85,9 +119,13 @@
 
         // Display user's message
         chatMessages.innerHTML += `<div class="message user-message text-right">${userMessage}</div>`;
+        scrollToBottom(); // Scroll to the bottom when the user sends a message
 
-        // Show the spinner while sending the message
-        spinner.style.display = 'inline-block';
+        // Show "typing..." message after a delay
+        setTimeout(() => {
+            showTypingMessage();
+            disableInputAndButton(); // Disable input field and send button while waiting
+        }, 1000); // Delay for 1 second before showing "typing..."
 
         // Send user's message to the API using FormData
         const formData = new FormData(chatForm);
@@ -102,28 +140,39 @@
         })
         .then(response => response.json())
         .then(data => {
-            // Hide the spinner when response is received
-            spinner.style.display = 'none';
+            // Hide the "typing..." message when response is received
+            hideTypingMessage();
 
             if (data.success) {
                 // Display bot's response
                 chatMessages.innerHTML += `<div class="message bot-message">${data.answer}</div>`;
+                scrollToBottom(); // Scroll to the bottom when the bot responds
             } else {
                 // Display error message
                 chatMessages.innerHTML += `<div class="message error-message">Request couldn't be completed: ${data.error}</div>`;
+                scrollToBottom(); // Scroll to the bottom when there's an error
             }
+
+            // Automatically scroll to the bottom when new messages arrive
+            scrollToBottom();
+
+            enableInputAndButton(); // Enable input field and send button after receiving the response
         })
         .catch(error => {
-            // Hide the spinner on network error
-            spinner.style.display = 'none';
+            // Hide the "typing..." message on network error
+            hideTypingMessage();
 
             // Handle network errors
             console.error('Error:', error);
             chatMessages.innerHTML += `<div class="message error-message">Network error</div>`;
+            scrollToBottom(); // Scroll to the bottom when there's a network error
+
+            enableInputAndButton(); // Enable input field and send button after a network error
         });
 
         // Clear the input field
         userInput.value = '';
     });
 </script>
+
 {% endblock %}

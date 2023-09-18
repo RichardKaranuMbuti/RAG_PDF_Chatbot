@@ -22,16 +22,16 @@
     <div class="collapse navbar-collapse" id="navbarNav">
         <ul class="navbar-nav ml-auto">
             <li class="nav-item">
-                <a class="nav-link" href="#">Upload Docs</a>
+                <a class="nav-link" href="{% url 'upload_docs' %}">Upload Docs</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="#">Chat</a>
+                <a class="nav-link" href="{% url 'send_message' %}">Chat</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="#">See Documents</a>
+                <a class="nav-link" href="{% url 'view-documents-template' %}">See Documents</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="#">Delete Documents</a>
+                <a class="nav-link" href="{% url 'pinecone_settings' %}">Settings</a>
             </li>
         </ul>
     </div>
@@ -49,3 +49,4 @@
 
 </body>
 </html>
+

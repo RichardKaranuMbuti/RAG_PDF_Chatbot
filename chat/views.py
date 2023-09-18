@@ -68,7 +68,7 @@ def pinecone_setup():
     except Exception as e:
         return JsonResponse({"error": f"Failed to initialize Pinecone: {str(e)}"}, status=500)
 
-pinecone_setup()
+#pinecone_setup()
 
 
 # Define index name
@@ -233,8 +233,102 @@ def get_uploaded_pdf_paths():
     return pdf_docs
 
 
+#Display pdf files 
+def get_recent_pdfs(request):
+    if request.method == "GET":
+        # Retrieve all items from the UploadedPDF model, ordered by upload_date in descending order
+        recent_pdfs = UploadedPDF.objects.order_by('-upload_date')
+
+        # Create a list of dictionaries with file names, descriptions, and primary keys
+        pdf_list = []
+        for pdf in recent_pdfs:
+            pdf_dict = {
+                'pdf_name': pdf.pdf_file.name.split('/')[-1],
+                'description': pdf.description,
+                'pk': pdf.pk,  # Add the primary key
+            }
+            pdf_list.append(pdf_dict)
+
+        # Create a JSON response with the list of dictionaries
+        response_data = {
+            'pdfs': pdf_list
+        }
+
+        return JsonResponse(response_data, safe=False)
+    return JsonResponse({"message": "Not allowed"}, status=405)
+
+
+from django.core.exceptions import ObjectDoesNotExist
+from django.conf import settings
+import os
+    
+#Deleting doccuments
+@csrf_exempt
+def delete_document(request, pk):
+    # Initialize the response data
+    response_data = {}
+
+    try:
+        # Try to get the document based on its primary key
+        document = UploadedPDF.objects.get(pk=pk)
+        print("document: ", document)
+
+        # Extract the actual file name
+        file_name = os.path.basename(document.pdf_file.name)
+
+        # Delete the document from the database
+        document.delete()
+
+        # Delete the document file from the media folder
+        document_path = os.path.join(settings.MEDIA_ROOT, document.pdf_file.name)
+        if os.path.exists(document_path):
+            os.remove(document_path)
+
+        response_data['success'] = True
+        response_data['message'] = f'Document "{file_name}" has been deleted.'
+    except ObjectDoesNotExist:
+        response_data['success'] = False
+        response_data['message'] = f'Document not found in the database.'
+    except Exception as e:
+        response_data['success'] = False
+        response_data['message'] = f'An error occurred: {str(e)}'
+
+    return JsonResponse(response_data)
+
+
+#Update Vectorstore settings
+def pinecone_settings_view(request):
+    try:
+        # Get the existing Pinecone settings object (assuming only one exists)
+        settings = PineconeSettings.objects.first()
+
+        if request.method == 'POST':
+            # Handle form submission and update the settings
+            api_key = request.POST.get('api_key')
+            environment = request.POST.get('environment')
+            # Retrieve other fields as needed
+
+            # Update the settings
+            settings.api_key = api_key
+            settings.environment = environment
+            # Update other fields as needed
+            settings.save()
+
+            return JsonResponse({'success': True, 'message': 'Settings updated successfully'})
+        
+        return render(request, 'settings.html', {'settings': settings})
+    
+    except PineconeSettings.DoesNotExist:
+        return JsonResponse({'success': False, 'message': 'Settings not found'})
+    
+
+
 def upload_docs_view(request):
     return render(request, 'upload.html')
 
 def send_message_get_response(request):
     return render(request, 'chat.html')
+
+def view_docs(request):
+    return render(request, 'view_docs.html')
+
