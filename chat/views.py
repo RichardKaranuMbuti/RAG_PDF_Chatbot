@@ -1,7 +1,4 @@
 from django.shortcuts import render
-
-import streamlit as st
-from dotenv import load_dotenv #enable app to use variables inside .env
 from PyPDF2 import PdfReader
 from langchain.text_splitter import CharacterTextSplitter #Create smaller text chunks from large one
 from langchain.embeddings import OpenAIEmbeddings
@@ -68,6 +65,7 @@ def pinecone_setup():
     except Exception as e:
         return JsonResponse({"error": f"Failed to initialize Pinecone: {str(e)}"}, status=500)
 
+#Initialilize pinecone
 #pinecone_setup()
 
 
