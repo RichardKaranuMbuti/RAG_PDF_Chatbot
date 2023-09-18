@@ -84,6 +84,23 @@ DATABASES = {
 }
 
 
+'''
+# Production Database Configs
+from dbsettings import ENGINE, NAME, USER, PASSWORD, HOST, PORT
+
+DATABASES = {
+    'default': {
+        'ENGINE': ENGINE,
+        'NAME': NAME,
+        'USER': USER,
+        'PASSWORD': PASSWORD,
+        'HOST': HOST,
+        'PORT': PORT,
+    }
+}
+'''
+
+
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
 
