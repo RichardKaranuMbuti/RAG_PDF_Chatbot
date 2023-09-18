@@ -75,16 +75,16 @@ WSGI_APPLICATION = 'Unitech.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
-
+'''
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
-
-
 '''
+
+
 # Production Database Configs
 from dbsettings import ENGINE, NAME, USER, PASSWORD, HOST, PORT
 
@@ -98,7 +98,7 @@ DATABASES = {
         'PORT': PORT,
     }
 }
-'''
+
 
 
 # Password validation
