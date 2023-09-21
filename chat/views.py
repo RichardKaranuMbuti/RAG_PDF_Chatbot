@@ -15,6 +15,7 @@ from langchain.embeddings.openai import OpenAIEmbeddings
 from langchain.vectorstores import Pinecone
 from langchain.llms import OpenAI
 from langchain.chains.question_answering import load_qa_chain
+from pinecone.core.client.configuration import Configuration as OpenApiConfiguration
 
 
 #Document loader
@@ -56,8 +57,10 @@ def pinecone_setup():
     try:
         # Initialize Pinecone from the database
         pinecone_settings = PineconeSettings.objects.first()
+        openapi_config = OpenApiConfiguration.get_default_copy()
+        openapi_config.proxy = "http://proxy.server:3128"
         if pinecone_settings:
-            pinecone.init(api_key=pinecone_settings.api_key, environment=pinecone_settings.environment)
+            pinecone.init(api_key=pinecone_settings.api_key, environment=pinecone_settings.environment,openapi_config=openapi_config)
             index_name = 'unitech'
             print("Pinecone initialized successfully")
         else:
@@ -77,20 +80,20 @@ def pinecone_index_setup():
     try:
         # Delete the index if it exists
         pinecone.delete_index(index_name)
-        
+
         # Initialize Pinecone for a new connection
         #pinecone_setup()
-        
-        
+
+
         pinecone.create_index(
                 name=index_name,
                 metric='cosine',
                 dimension=1536  # Adjust as needed
             )
-        
+
         # Initialize Pinecone to use the created index
         index = pinecone.Index(index_name)
-        
+
         # Check if the index name is in the list of indexes
         indexes_list = pinecone.list_indexes()
         if index_name in indexes_list:
@@ -98,10 +101,10 @@ def pinecone_index_setup():
             print("Index created successfully")
         else:
             return JsonResponse({"success": False, "message": "Index creation failed"})
-    
+
     except Exception as e:
         return JsonResponse({"error": f"Error in Pinecone index setup: {str(e)}"}, status=500)
-    
+
 
 # Create Embeddings
 @csrf_exempt
@@ -110,7 +113,7 @@ def process_documents(request):
     index_name = 'unitech'
 
     try:
-        
+
 
         pinecone_setup()
 
@@ -125,14 +128,14 @@ def process_documents(request):
 
         embeddings = OpenAIEmbeddings(model=model_name,
                                     openai_api_key=openai_api_key)
-        
+
         vectorstore = Pinecone.from_texts([t for t in chunks], embeddings, index_name=index_name)
 
         return JsonResponse({"success": True, "message": "Embeddings created successfully"})
     except Exception as e:
         print("Error : ", e)
         return JsonResponse({"error": f"Error in creating embeddings: {str(e)}"}, status=500)
-        
+
 
 
 
@@ -159,7 +162,7 @@ def document_search_view(request):
     try:
         docsearch = Pinecone.from_texts('texts',embeddings,
                                         index_name=index_name)
-        
+
         llm = OpenAI(temperature=0, openai_api_key=openai_api_key)
         chain = load_qa_chain(llm, chain_type="stuff")
         docs = docsearch.similarity_search(query)
@@ -168,7 +171,7 @@ def document_search_view(request):
     except Exception as e:
         print("Error : ", e)
         return JsonResponse({"error": f"Error in chatbot creation: {str(e)}"}, status=500)
-        
+
 
 
 from .models import UploadedPDF
@@ -180,7 +183,7 @@ from rest_framework.decorators import api_view, parser_classes
 @parser_classes([MultiPartParser, FormParser])
 def upload_pdf_view(request):
     if request.method == 'POST':
-        
+
         description = request.POST.get('description', '')
         files = request.FILES.getlist('pdf_files[]')
         print ("files: ", files)
@@ -231,7 +234,7 @@ def get_uploaded_pdf_paths():
     return pdf_docs
 
 
-#Display pdf files 
+#Display pdf files
 def get_recent_pdfs(request):
     if request.method == "GET":
         # Retrieve all items from the UploadedPDF model, ordered by upload_date in descending order
@@ -259,7 +262,7 @@ def get_recent_pdfs(request):
 from django.core.exceptions import ObjectDoesNotExist
 from django.conf import settings
 import os
-    
+
 #Deleting doccuments
 @csrf_exempt
 def delete_document(request, pk):
@@ -313,12 +316,12 @@ def pinecone_settings_view(request):
             settings.save()
 
             return JsonResponse({'success': True, 'message': 'Settings updated successfully'})
-        
+
         return render(request, 'settings.html', {'settings': settings})
-    
+
     except PineconeSettings.DoesNotExist:
         return JsonResponse({'success': False, 'message': 'Settings not found'})
-    
+
 
 
 def upload_docs_view(request):

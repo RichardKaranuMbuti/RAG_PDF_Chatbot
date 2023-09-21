@@ -1,0 +1,6 @@
+ENGINE = 'django.db.backends.mysql'
+NAME = 'Unitechbot$Unitech'
+USER = 'Unitechbot'
+PASSWORD = '@Unitech2023!'
+HOST = 'Unitechbot.mysql.pythonanywhere-services.com'
+PORT = '3306'
