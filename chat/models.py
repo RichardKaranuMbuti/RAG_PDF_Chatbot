@@ -21,7 +21,7 @@ class UploadedPDF(models.Model):
 
 class PineconeSettings(models.Model):
     api_key = models.CharField(max_length=100)
-    environment = models.CharField(max_length=100)
+    environment = models.CharField(max_length= 100)
     updated_on = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
@@ -42,3 +42,10 @@ class OpenAIModel(models.Model):
 
     def __str__(self):
         return self.model_name
+
+class ChunkSettings(models.Model):
+    chunk_size = models.PositiveIntegerField(default=600)
+    chunk_overlap = models.PositiveIntegerField(default=50)
+
+    def __str__(self):
+        return f"Chunk Settings - Chunk Size: {self.chunk_size}, Chunk Overlap: {self.chunk_overlap}"

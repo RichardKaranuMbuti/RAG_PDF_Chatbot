@@ -9,7 +9,7 @@ from langchain.chat_models import ChatOpenAI
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
-from .models import UploadedPDF, PineconeSettings, PineconeIndex, OpenAIModel
+from .models import UploadedPDF, PineconeSettings, PineconeIndex, OpenAIModel, ChunkSettings
 import pinecone
 from langchain.embeddings.openai import OpenAIEmbeddings
 from langchain.vectorstores import Pinecone
@@ -37,15 +37,29 @@ def get_text_chunks(text):
     sentences = nltk.sent_tokenize(text)
     chunks = []
     current_chunk = ""
-    chunk_size = 600
-    chunk_overlap = 50
+
+    # Retrieve the values from the database
+    saved_chunk_settings = ChunkSettings.objects.first()
+
+    if saved_chunk_settings:
+        saved_chunk_size = saved_chunk_settings.chunk_size
+        saved_chunk_overlap = saved_chunk_settings.chunk_overlap
+    else:
+        saved_chunk_size = 600  # Default value
+        saved_chunk_overlap = 50  # Default value
+
+    chunk_size = saved_chunk_size
+    chunk_overlap = saved_chunk_overlap
+
     length_function =len
+
     for sentence in sentences:
         if len(current_chunk) + len(sentence) <= chunk_size:
             current_chunk += sentence
         else:
             chunks.append(current_chunk)
             current_chunk = sentence
+    
     if current_chunk:
         chunks.append(current_chunk)
     return chunks
@@ -57,10 +71,10 @@ def pinecone_setup():
     try:
         # Initialize Pinecone from the database
         pinecone_settings = PineconeSettings.objects.first()
-        openapi_config = OpenApiConfiguration.get_default_copy()
-        openapi_config.proxy = "http://proxy.server:3128"
+        #openapi_config = OpenApiConfiguration.get_default_copy()
+        #openapi_config.proxy = "http://proxy.server:3128"
         if pinecone_settings:
-            pinecone.init(api_key=pinecone_settings.api_key, environment=pinecone_settings.environment,openapi_config=openapi_config)
+            pinecone.init(api_key=pinecone_settings.api_key, environment=pinecone_settings.environment)#,openapi_config=openapi_config)
             index_name = 'unitech'
             print("Pinecone initialized successfully")
         else:
@@ -71,24 +85,59 @@ def pinecone_setup():
 #Initialilize pinecone
 #pinecone_setup()
 
+@csrf_exempt
+def get_pinecone_index():
+        # Get the first PineconeIndex object
+    first_pinecone_index = PineconeIndex.objects.first()
+
+    # Check if an object was found before trying to access its attributes
+    if first_pinecone_index:
+        index_name = first_pinecone_index.index_name
+        return index_name
+    else:
+        print("Error, no index instance found")
+        
 
 # Define index name
-index_name = 'unitech'
+index_name = get_pinecone_index()
 
-def pinecone_index_setup():
-    index_name = 'unitech'
+@csrf_exempt
+def pinecone_index_setup(request):
+    index_name = get_pinecone_index()
+    print("Index name: ", index_name)
+    index_name = index_name
     try:
+        pinecone_setup()
         # Delete the index if it exists
         pinecone.delete_index(index_name)
+        indexes_list = pinecone.list_indexes()
+        print("List 1: ", indexes_list)
 
         # Initialize Pinecone for a new connection
-        #pinecone_setup()
+        pinecone_setup()
+
+        # Get the first PineconeIndex object
+        first_pinecone_index = PineconeIndex.objects.first()
+        print("first: ", first_pinecone_index)
+
+        # Check if an object was found before trying to access its attributes
+        if first_pinecone_index:
+            metric = first_pinecone_index.metric
+            dimension = first_pinecone_index.dimension
+        print("dimension:", dimension)
+        print("metric: ", metric)
+
+        metric = metric
+        dimension = dimension
+
+        print("metric", metric, "dimension: ", dimension)
+
 
 
         pinecone.create_index(
                 name=index_name,
-                metric='cosine',
-                dimension=1536  # Adjust as needed
+                metric=metric,
+                dimension=dimension  # Adjust as needed
             )
 
         # Initialize Pinecone to use the created index
@@ -106,11 +155,14 @@ def pinecone_index_setup():
         return JsonResponse({"error": f"Error in Pinecone index setup: {str(e)}"}, status=500)
 
 
+
 # Create Embeddings
+
 @csrf_exempt
 def process_documents(request):
+    
 
-    index_name = 'unitech'
+    index_name = get_pinecone_index()
 
     try:
 
@@ -332,4 +384,7 @@ def send_message_get_response(request):
 
 def view_docs(request):
     return render(request, 'view_docs.html')
+
+def process_documents_template(request):
+    return render(request, 'process.html')
 

@@ -15,10 +15,16 @@
         </div>
         <!-- Add other form fields for additional settings -->
         <button type="submit" class="btn btn-primary">Save Settings</button>
+
+        <!-- Reset Vectorstore Index Button -->
+        <button type="button" class="btn btn-danger" id="reset-index">Reset Vectorstore Index</button>
+        <div id="loading-spinner" style="display: none;">
+            <i class="fa fa-spinner fa-spin"></i> Resetting...
+        </div>
     </form>
 </div>
 
-<!-- Include jQuery for form submission -->
+<!-- JavaScript for Confirm and Flash Messages -->
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
     $(document).ready(function () {
@@ -30,16 +36,62 @@
                 data: $(this).serialize(),
                 success: function (response) {
                     if (response.success) {
-                        alert('Settings updated successfully');
+                        showAlert('Settings updated successfully');
                     } else {
-                        alert('Error: ' + response.message);
+                        showAlert('Error: ' + response.message, 'error');
                     }
                 },
                 error: function () {
-                    alert('An error occurred while updating settings');
+                    showAlert('An error occurred while updating settings', 'error');
                 }
             });
         });
+
+        // Reset Vectorstore Index Button Click
+        $('#reset-index').click(function () {
+            showConfirmDialog('Reset Vectorstore Index', 'Are you sure you want to reset the Vectorstore Index? This action will clear all data and documents will need to be reprocessed.', function () {
+                // Show loading spinner
+                $('#loading-spinner').show();
+
+                // Send AJAX request to reset index
+                $.ajax({
+                    type: 'POST',
+                    url: '{% url "pinecone_index_setup" %}',
+                    data: {},
+                    success: function (response) {
+                        // Hide loading spinner
+                        $('#loading-spinner').hide();
+
+                        if (response.success) {
+                            showAlert('Index recreated successfully');
+                        } else {
+                            showAlert('Something went wrong', 'error');
+                        }
+                    },
+                    error: function () {
+                        // Hide loading spinner
+                        $('#loading-spinner').hide();
+                        
+                        showAlert('Something went wrong', 'error');
+                    }
+                });
+            });
+        });
+
+        function showConfirmDialog(title, message, callback) {
+            if (confirm(message)) {
+                callback();
+            }
+        }
+
+        function showAlert(message, type = 'success') {
+            const alertClass = type === 'success' ? 'alert-success' : 'alert-danger';
+            const alertHtml = `<div class="alert ${alertClass}">${message}</div>`;
+            $('#settings-form').prepend(alertHtml);
+            setTimeout(function () {
+                $('.alert').remove();
+            }, 5000);
+        }
     });
 </script>
 {% endblock %}
