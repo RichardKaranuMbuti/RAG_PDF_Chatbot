@@ -99,7 +99,7 @@ def get_pinecone_index():
         
 
 # Define index name
-index_name = get_pinecone_index()
+#index_name = get_pinecone_index()
 
 @csrf_exempt
 def pinecone_index_setup(request):
