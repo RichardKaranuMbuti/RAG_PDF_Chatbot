@@ -10,6 +10,7 @@ charset-normalizer==3.2.0
 click==8.1.7
 dataclasses-json==0.6.1
 Django==4.2.5
+django-storages==1.14
 djangorestframework==3.14.0
 dnspython==2.4.2
 frozenlist==1.4.0
