@@ -71,8 +71,8 @@ def pinecone_setup():
     try:
         # Initialize Pinecone from the database
         pinecone_settings = PineconeSettings.objects.first()
-        #openapi_config = OpenApiConfiguration.get_default_copy()
-        #openapi_config.proxy = "http://proxy.server:3128"
+        openapi_config = OpenApiConfiguration.get_default_copy()
+        openapi_config.proxy = "http://proxy.server:3128"
         if pinecone_settings:
             pinecone.init(api_key=pinecone_settings.api_key, environment=pinecone_settings.environment)#,openapi_config=openapi_config)
             index_name = 'unitech'
