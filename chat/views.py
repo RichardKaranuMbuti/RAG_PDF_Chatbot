@@ -230,38 +230,41 @@ from .models import UploadedPDF
 from .serializers import UploadedPDFSerializer
 from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.decorators import api_view, parser_classes
+from rest_framework.response import Response
 
 @api_view(['POST'])
 @parser_classes([MultiPartParser, FormParser])
 def upload_pdf_view(request):
     if request.method == 'POST':
+        try:
+            description = request.POST.get('description', '')
+            files = request.FILES.getlist('pdf_files[]')
 
-        description = request.POST.get('description', '')
-        files = request.FILES.getlist('pdf_files[]')
-        print ("files: ", files)
-        # Check if files were uploaded
-        if 'pdf_files[]' in request.FILES:
-            pdf_files = request.FILES.getlist('pdf_files[]')
-            print ("pdf files found : ", pdf_files)
+            # Check if files were uploaded
+            if 'pdf_files[]' in request.FILES:
+                pdf_files = request.FILES.getlist('pdf_files[]')
 
-            # Loop through the uploaded PDF files
-            for pdf_file in pdf_files:
-                # Create a new UploadedPDF instance and save the PDF
-                uploaded_pdf = UploadedPDF(pdf_file=pdf_file, description=description)
-                uploaded_pdf.save()
+                # Loop through the uploaded PDF files
+                for pdf_file in pdf_files:
+                    # Create a new UploadedPDF instance and save the PDF
+                    uploaded_pdf = UploadedPDF(pdf_file=pdf_file, description=description)
+                    uploaded_pdf.save()
 
-            # Retrieve all PDFs saved in the model
-            pdf_docs = UploadedPDF.objects.all()
+                # Retrieve all PDFs saved in the model
+                pdf_docs = UploadedPDF.objects.all()
 
-            # Serialize the PDFs using the UploadedPDFSerializer
-            serializer = UploadedPDFSerializer(pdf_docs, many=True)
+                # Serialize the PDFs using the UploadedPDFSerializer
+                serializer = UploadedPDFSerializer(pdf_docs, many=True)
 
-            return JsonResponse({"message": "PDFs uploaded successfully", "status": 200})
-        else:
-            return JsonResponse({"error": "No PDF files were uploaded"}, status=400)
+                return Response({"message": "PDFs uploaded successfully", "status": 200})
+            else:
+                return Response({"error": "No PDF files were uploaded"}, status=400)
+        except Exception as e:
+            # Handle the exception and return it as a JSON response
+            print("error occured: ", e)
+            return Response({"error": str(e)}, status=500)
     else:
-        return JsonResponse({"error": "Unsupported request method"}, status=405)
-
+        return Response({"error": "Unsupported request method"}, status=405)
 
 import os
 from django.conf import settings
