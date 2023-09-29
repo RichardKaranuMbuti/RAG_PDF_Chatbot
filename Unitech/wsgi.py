@@ -7,6 +7,16 @@ For more information on this file, see
 https://docs.djangoproject.com/en/4.2/howto/deployment/wsgi/
 """
 import os
+
+from django.core.wsgi import get_wsgi_application
+
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'Unitech.settings')
+
+application = get_wsgi_application()
+
+#Azure Settings
+'''
+import os
 from django.core.wsgi import get_wsgi_application
 
 settings_module = 'Unitech.deployment' if 'WEBSITE_HOSTNAME' in os.environ else 'Unitech.settings'
@@ -14,3 +24,4 @@ settings_module = 'Unitech.deployment' if 'WEBSITE_HOSTNAME' in os.environ else 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', settings_module)
 
 application = get_wsgi_application()
+'''

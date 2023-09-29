@@ -6,6 +6,7 @@ __pycache__/
 
 
 media/
+dbsettings.py
 
 # Distribution / packaging
 .Python
