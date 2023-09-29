@@ -58,11 +58,16 @@
                 const formData = new FormData(form);
     
                 // Send a POST request using AJAX
-                fetch(uploadUrl, { // Use the upload URL from the data attribute
+                fetch(uploadUrl, {
                     method: 'POST',
                     body: formData
                 })
-                .then(response => response.json())
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
                 .then(data => {
                     if (data.status === 200) {
                         // Hide the form
@@ -87,13 +92,18 @@
                             loadingSpinner.style.display = 'inline-block';
     
                             // Make a POST request to the named URL
-                            fetch("{% url 'create_embeddings' %}", { // Use the named URL
+                            fetch("/process-docs/", { // Use the named URL
                                 method: 'POST',
                                 headers: {
                                     'Content-Type': 'application/json',
                                 },
                             })
-                            .then(response => response.json())
+                            .then(response => {
+                                if (!response.ok) {
+                                    throw new Error('Network response was not ok');
+                                }
+                                return response.json();
+                            })
                             .then(data => {
                                 // Hide the loading spinner
                                 loadingSpinner.style.display = 'none';
@@ -128,20 +138,23 @@
     
                     } else {
                         // Handle other status codes or errors if needed
+                        console.error('Server error:', data.error_message);
                     }
                 })
                 .catch(error => {
+                    // Handle fetch errors or other unexpected errors
                     console.error('Error:', error);
-                    // Handle the error if necessary
+                    // Additional error handling logic here
                 });
             });
     
             // Add an event listener for the "Chat" button
             chatButton.addEventListener('click', function () {
                 // Navigate to the chat page
-                window.location.href = "{% url 'send_message' %}";
+                window.location.href = "/chat-page/";
             });
         });
     </script>
+    
         
 {% endblock %}
