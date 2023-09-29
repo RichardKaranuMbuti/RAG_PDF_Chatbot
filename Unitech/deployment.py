@@ -2,6 +2,7 @@ import os
 from .settings import *
 from .settings import BASE_DIR
 from storages.backends.azure_storage import AzureStorage
+from azure.storage.blob import BlobServiceClient
 
 
 SECRET_KEY = os.environ['SECRET']
@@ -42,6 +43,19 @@ DATABASES = {
 AZURE_ACCOUNT_NAME = os.environ['AZURE_ACCOUNT_NAME']
 AZURE_ACCOUNT_KEY = os.environ['AZURE_ACCOUNT_KEY']
 
+# Define the Azure Blob Storage container where you want to store PDFs
+AZURE_PDF_CONTAINER = 'pdfs'
+
+# Initialize the Azure Blob Service Client
+azure_blob_service_client = BlobServiceClient(account_url=f"https://{AZURE_ACCOUNT_NAME}.blob.core.windows.net", credential=AZURE_ACCOUNT_KEY)
+
+DEFAULT_FILE_STORAGE = 'chat.azure_storage.AzureMediaStorage'
+MEDIA_URL = f'https://{AZURE_ACCOUNT_NAME}.blob.core.windows.net/{AZURE_PDF_CONTAINER}/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+
+'''
+
 class AzureMediaStorage(AzureStorage):
     account_name = AZURE_ACCOUNT_NAME
     account_key = AZURE_ACCOUNT_KEY
@@ -53,5 +67,5 @@ MEDIA_URL = f'https://{AZURE_ACCOUNT_NAME}.blob.core.windows.net/media/'
 
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
-
+'''
 

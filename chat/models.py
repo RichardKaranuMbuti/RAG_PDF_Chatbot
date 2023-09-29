@@ -1,4 +1,5 @@
 from django.db import models
+from .azure_storage import AzureMediaStorage
 
 # Create your models here.
 
@@ -11,7 +12,7 @@ class Message(models.Model):
         return f'Message(prompt={self.prompt}, response={self.response})'
     
 class UploadedPDF(models.Model):
-    pdf_file = models.FileField(upload_to='pdfs/')
+    pdf_file = models.FileField(storage=AzureMediaStorage())
     description = models.TextField(default='')
     upload_date = models.DateTimeField(auto_now_add=True)
 
