@@ -29,7 +29,7 @@ DEBUG = True
 
 from allowedhosts import ALLOWED_HOSTS
 ALLOWED_HOSTS = ALLOWED_HOSTS
-# ALLOWED_HOSTS = ['unitechbot.pythonanywhere.com','127.0.0.1']
+#ALLOWED_HOSTS = ['unitechbot.pythonanywhere.com','127.0.0.1']
 
 
 # Application definition

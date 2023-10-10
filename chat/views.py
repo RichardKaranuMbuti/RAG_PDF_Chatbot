@@ -40,6 +40,7 @@ def get_pdf_text(pdf_docs):
            if raw_text:
                text += raw_text
    print(text)
+   return text
 
 #text = get_pdf_text(pdf_docs=['/home/acelogic/Downloads/Ubuntu FC - October.pdf','/home/acelogic/Downloads/The_Constitution_of_Kenya_2010.pdf'])
 
@@ -213,7 +214,6 @@ def process_documents(request):
         pdf_docs = get_uploaded_pdf_paths()
         text = get_pdf_text(pdf_docs)
         chunks = get_text_chunks(text)
-
 
         openai_model = OpenAIModel.objects.latest('created_on')
         openai_api_key = openai_model.openai_api_key
