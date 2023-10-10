@@ -16,9 +16,12 @@ from langchain.vectorstores import Pinecone
 from langchain.llms import OpenAI
 from langchain.chains.question_answering import load_qa_chain
 from pinecone.core.client.configuration import Configuration as OpenApiConfiguration
-
+from langchain.document_loaders import PyPDFLoader
+from langchain.document_loaders import UnstructuredPDFLoader
+from langchain.text_splitter import RecursiveCharacterTextSplitter
 
 #Document loader
+'''
 def get_pdf_text(pdf_docs):
     text= ""
     for pdf in pdf_docs: # loop through all out pdfs
@@ -26,9 +29,20 @@ def get_pdf_text(pdf_docs):
         for page in pdf_reader.pages: # Loop through all the pages
             text += page.extract_text() # Extract the page contents and store in the variable
     return text
+'''
+def get_pdf_text(pdf_docs)#=['/home/acelogic/Downloads/Ubuntu FC - October.pdf','/home/acelogic/Downloads/The_Constitution_of_Kenya_2010.pdf'])
+   text = ''
+   for pdf in pdf_docs:
+       doc_reader = PdfReader(pdf)
+       for i, page in enumerate(doc_reader.pages):
+           raw_text = page.extract_text()
+           if raw_text:
+               text += raw_text
+   print(text)
 
-#text = get_pdf_text(pdf_docs)
+#text = get_pdf_text(pdf_docs=['/home/acelogic/Downloads/Ubuntu FC - October.pdf','/home/acelogic/Downloads/The_Constitution_of_Kenya_2010.pdf'])
 
+'''
 # Transformers
 import nltk
 nltk.download('punkt')
@@ -63,6 +77,32 @@ def get_text_chunks(text):
     if current_chunk:
         chunks.append(current_chunk)
     return chunks
+'''
+def get_text_chunks(text):
+    # Retrieve the values from the database
+    saved_chunk_settings = ChunkSettings.objects.first()
+
+    if saved_chunk_settings:
+        saved_chunk_size = saved_chunk_settings.chunk_size
+        saved_chunk_overlap = saved_chunk_settings.chunk_overlap
+    else:
+        saved_chunk_size = 600  # Default value
+        saved_chunk_overlap = 50  # Default value
+
+    chunk_size = saved_chunk_size
+    chunk_overlap = saved_chunk_overlap
+    length_function =len
+
+    text_splitter = CharacterTextSplitter(        
+    separator = "\n",
+    chunk_size = chunk_size,
+    chunk_overlap  = chunk_overlap, #striding over the text
+    length_function = length_function)
+
+    texts = text_splitter.split_text(text)
+
+    return texts
+
 
 #chunks = get_text_chunks(text)
 
