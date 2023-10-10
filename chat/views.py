@@ -30,7 +30,8 @@ def get_pdf_text(pdf_docs):
             text += page.extract_text() # Extract the page contents and store in the variable
     return text
 '''
-def get_pdf_text(pdf_docs)#=['/home/acelogic/Downloads/Ubuntu FC - October.pdf','/home/acelogic/Downloads/The_Constitution_of_Kenya_2010.pdf'])
+#=['/home/acelogic/Downloads/Ubuntu FC - October.pdf','/home/acelogic/Downloads/The_Constitution_of_Kenya_2010.pdf'])
+def get_pdf_text(pdf_docs):
    text = ''
    for pdf in pdf_docs:
        doc_reader = PdfReader(pdf)
