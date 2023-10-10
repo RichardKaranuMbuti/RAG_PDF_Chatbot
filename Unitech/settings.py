@@ -26,7 +26,9 @@ SECRET_KEY = 'django-insecure-(umaz^gh234e(@thru-_(_6kzyarfhqyr)p_-4t8zkjc&ejqqw
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+
+from allowedhosts import ALLOWED_HOSTS
+ALLOWED_HOSTS = ALLOWED_HOSTS
 # ALLOWED_HOSTS = ['unitechbot.pythonanywhere.com','127.0.0.1']
 
 
@@ -100,6 +102,9 @@ DATABASES = {
         'PASSWORD': PASSWORD,
         'HOST': HOST,
         'PORT': PORT,
+        'OPTIONS': {
+            'init_command': 'SET sql_mode="STRICT_TRANS_TABLES"',
+        },
     }
 }
 
@@ -140,7 +145,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
 '''
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'  
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 STATICFILES_DIRS = (str(BASE_DIR.joinpath('static')),)
@@ -149,12 +154,12 @@ STATIC_URL = '/static/'
 
 STATIC_URL = 'static/'
 
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage' 
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 '''
 
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
- 
+
 
 
 STATICFILES_DIRS = [
