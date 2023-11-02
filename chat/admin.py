@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Message, UploadedPDF, PineconeSettings, PineconeIndex, OpenAIModel
+from .models import Message, UploadedPDF, PineconeSettings, PineconeIndex, OpenAIModel, ChunkSettings
 
 # Register your models here.
 
@@ -10,4 +10,5 @@ admin.site.register(UploadedPDF)
 admin.site.register(PineconeSettings)
 admin.site.register(PineconeIndex)
 admin.site.register(OpenAIModel)
+admin.site.register(ChunkSettings)
 
