@@ -4,7 +4,6 @@ from . import views
 
 
 
-
 urlpatterns = [
     path('pinecone-setup/', views.pinecone_setup, name='pinecone_setup'),
     path('reset/', views.pinecone_index_setup, name='pinecone_index_setup'),

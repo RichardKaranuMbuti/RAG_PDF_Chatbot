@@ -20,6 +20,19 @@ from langchain.document_loaders import PyPDFLoader
 from langchain.document_loaders import UnstructuredPDFLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 
+from langchain.prompts import (
+    ChatPromptTemplate,
+    MessagesPlaceholder,
+    SystemMessagePromptTemplate,
+    HumanMessagePromptTemplate,
+)
+from langchain.chains import LLMChain
+from langchain.memory import ConversationSummaryBufferMemory
+from langchain.llms import OpenAI
+from langchain.schema import AIMessage, HumanMessage, SystemMessage
+from langchain.chat_models import ChatOpenAI
+from langchain.memory import ConversationBufferMemory
+
 #Document loader
 '''
 def get_pdf_text(pdf_docs):
@@ -230,7 +243,8 @@ def process_documents(request):
         return JsonResponse({"error": f"Error in creating embeddings: {str(e)}"}, status=500)
 
 
-
+import json
+from langchain.prompts import PromptTemplate
 
 # Create a chatbot
 @csrf_exempt
@@ -252,14 +266,41 @@ def document_search_view(request):
 
     embeddings = OpenAIEmbeddings(model=model_name,
                                     openai_api_key=openai_api_key)
+    
     try:
         docsearch = Pinecone.from_texts('texts',embeddings,
                                         index_name=index_name)
-
-        llm = OpenAI(temperature=0, openai_api_key=openai_api_key)
-        chain = load_qa_chain(llm, chain_type="stuff")
         docs = docsearch.similarity_search(query)
-        answer = chain.run(input_documents=docs, question=query)
+
+        context = '''Users ask you questions and you answer from the provided documents. If you
+        arent sure you politely ask the user follow up questions to help you understand.
+        '''
+        
+        template = """You are a chatbot having a conversation with a human.
+
+        Given the following extracted parts of a long document and a question, create a final answer.
+        Only answer from the input documents provided
+
+        {context}
+
+        {chat_history}
+        Human: {human_input}
+        Chatbot:"""
+
+        prompt = PromptTemplate(
+            input_variables=["chat_history", "human_input", "context"], template=template
+        )
+        memory = ConversationBufferMemory(memory_key="chat_history", input_key="human_input")
+        chain = load_qa_chain(
+            OpenAI(temperature=0, openai_api_key=openai_api_key), chain_type="stuff", 
+            memory=memory, prompt=prompt
+        )
+
+        
+        answer = chain({"input_documents": docs, "human_input": query}, return_only_outputs=True)
+        answer = answer['output_text']
+      
+
         return JsonResponse({"success": True, "answer": answer})
     except Exception as e:
         print("Error : ", e)

@@ -26,10 +26,12 @@ SECRET_KEY = 'django-insecure-(umaz^gh234e(@thru-_(_6kzyarfhqyr)p_-4t8zkjc&ejqqw
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-
+'''
 from allowedhosts import ALLOWED_HOSTS
 ALLOWED_HOSTS = ALLOWED_HOSTS
-#ALLOWED_HOSTS = ['unitechbot.pythonanywhere.com','127.0.0.1']
+'''
+
+ALLOWED_HOSTS = ['unitechbot.pythonanywhere.com','127.0.0.1']
 
 
 # Application definition
@@ -86,14 +88,14 @@ DATABASES = {
         'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
-'''
 
+'''
 
 
 
 # Production Database Configs
 
-from dbsettings import ENGINE, NAME, USER, PASSWORD, HOST, PORT
+#from dbsettings import ENGINE, NAME, USER, PASSWORD, HOST, PORT
 
 DATABASES = {
     'default': {
