@@ -95,7 +95,7 @@ DATABASES = {
 
 # Production Database Configs
 
-#from dbsettings import ENGINE, NAME, USER, PASSWORD, HOST, PORT
+from dbsettings import ENGINE, NAME, USER, PASSWORD, HOST, PORT
 
 DATABASES = {
     'default': {
