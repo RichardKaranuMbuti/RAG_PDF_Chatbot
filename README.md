@@ -1,8 +1,10 @@
 # RAG_Chatbot
-A full stack chatbot to answer from uploaded documents as well as OpenAI 
-# How to Run RAG_Chatbot
-
 RAG_Chatbot is a full stack chatbot application built with Django that allows users to upload documents and get answers from those documents using a retrieval-augmented generation (RAG) model. The chatbot also utilizes OpenAI for additional context and responses.
+Upload your pdfs and chat with them
+
+# How to Run 
+
+
 
 ## Prerequisites
 
